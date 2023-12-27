@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="2E7F62F1-7128-8616-2410-C3FEC3100EB1" containerWithKeyObject="6AEC987C-8FFE-7EF5-A8BB-DF5C257F5394" localFKIndex="00FF1C85-FB6A-DF08-62B7-424C7B81572A" name="Polozka_Kategorie_FK">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:51:58 UTC</createdTime>
+<generatorID>76A5DA60-984D-86E6-8C33-ACD191D4BA50</generatorID>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<referredTableLongName>Kategorie</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>E9122F47-8877-24D4-FC72-09B442D05DDB</referredTableID>
+<keyObject>07564D6E-BE2D-C478-BF22-938BDB969F9C</keyObject>
+<referredKeyID>07564D6E-BE2D-C478-BF22-938BDB969F9C</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>id</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

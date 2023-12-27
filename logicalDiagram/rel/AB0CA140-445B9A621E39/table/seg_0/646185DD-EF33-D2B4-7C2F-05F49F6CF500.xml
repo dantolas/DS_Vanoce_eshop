@@ -1,0 +1,84 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="646185DD-EF33-D2B4-7C2F-05F49F6CF500" name="Zakaznik">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:51:58 UTC</createdTime>
+<generatorID>31057832-0B60-1EF4-EFC1-39D88B80ADF6</generatorID>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id" id="E3AA65CA-7D04-20B0-164D-AE3170454611">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:51:58 UTC</createdTime>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementColumn>true</autoIncrementColumn>
+<identityColumn>true</identityColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<isSurrogateColumn>true</isSurrogateColumn>
+</Column>
+<Column name="jmeno" id="8C027B8C-68D8-438C-CB02-F06216192A97">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:53:49 UTC</createdTime>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>255</dataTypeSize>
+<ownDataTypeParameters>255,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="prijmeni" id="4AEDDDE2-E343-B317-4191-3E3CFA56D4E0">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:53:49 UTC</createdTime>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>255</dataTypeSize>
+<ownDataTypeParameters>255,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="email" id="5CE20E9E-3306-D865-C0C4-AFC0BFC19F3D">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:53:49 UTC</createdTime>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>255</dataTypeSize>
+<ownDataTypeParameters>255,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="telefon" id="28120F98-753B-2D21-4B48-CCEA2A33D13F">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:53:49 UTC</createdTime>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT011</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="2DA229FD-29DC-0A67-9AC4-FB70ACE1CDF5" name="Zakaznik_PK">
+<createdBy>charming</createdBy>
+<createdTime>2023-12-17 10:51:58 UTC</createdTime>
+<ownerDesignName>logicalDiagram</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<indexColumnUsage>
+<colUsage columnID="E3AA65CA-7D04-20B0-164D-AE3170454611"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>
