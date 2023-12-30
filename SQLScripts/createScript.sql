@@ -107,11 +107,45 @@ DELIMITER;
 
 
  /*Triggers*/
+delimiter //
+CREATE TRIGGER kontrola_ceny_polozky BEFORE INSERT
+ON Polozka
+FOR EACH ROW
+BEGIN
+if new.cena_ks < 0 THEN
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Cena polozky nemuze byt mensi nez 0.';
+end if; //
+END
+delimiter ;
+
+
+delimiter //
+CREATE TRIGGER pridani_ceny_polozkyNaObjednavce AFTER INSERT
+ON PolozkaNaObjednavce
+FOR EACH ROW
+BEGIN
+update PolozkaNaObjednavce set cena = (new.pocet_ks * (select cena_ks from Polozka where Polozka.id = new.polozka_id))
+where PolozkaNaObjednavce.id = new.id
+end//
+delimiter ;
 
 delimiter //
 CREATE TRIGGER aktualizace_ceny_objednavky AFTER INSERT
 ON PolozkaNaObjednavce
 FOR EACH ROW
+BEGIN
+update Objednavka set celkovaCena = celkovaCena + new.cena
+where Objednavka.id = new.objednavka_id//
+end;
+delimiter ;
 
-END IF; //
+delimiter //
+CREATE TRIGGER kontrola_aktualizace_ceny BEFORE UPDATE 
+ON Objednavka
+FOR EACH ROW
+BEGIN
+if new.celkovaCena < 0 THEN
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Cena objednavky nemuze byt mensi nez 0.';
+end if; //
+END
 delimiter ;
