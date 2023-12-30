@@ -86,6 +86,17 @@ create table IF NOT EXISTS PolozkaNaObjednavce(
  order by datum desc;
 
  /*Procedures*/
+
+ /*
+ Procedura na pridani nove objednavky.
+ Params:
+ email zakaznika kteremu objednavka patri,
+ nazev zpusobu doruceni podle tabulky ZpusobDoruceni,
+ nazev zpusobu platby podle tabulky ZpusobPlatby,
+ adresovy radek 1 pro doruceni,
+ mesto pro doruceni,
+ postovni smerovaci cislo, bez mezer jako cislo 12800
+ */
 DELIMITER //
  create procedure novaObjednavka(
 	IN _emailZakaznika VARCHAR(50),
@@ -105,6 +116,175 @@ START TRANSACTION;
 END //
 DELIMITER;
 
+/*
+Procedura na pridani nove kategorie.
+Params:
+nazev nove kategorie,
+strucny popis nove kategorie,
+HEX reprezentaci ID nadKategorie, naleznete bud zavolanim procedury ukazHexKategorii(), a nebo v pohledu KategorieHex;
+*/
+DELIMITER //
+ create procedure pridatKategoriiHex(
+	in _nazev varchar(255),
+	in _strucnyPopis varchar(500),
+	in _nadKategorieHex VARCHAR(60)
+)
+BEGIN
+
+START TRANSACTION;
+	insert into Kategorie(nazev,strucnyPopis,nadKategorie)
+	select _nazev,_strucnyPopis,Kategorie.id
+	where Kategorie.nadKategorie = (UNHEX(_nadKategorieHex));
+END //
+DELIMITER ; 
+/*
+Procedura ktera vypise obsah pohledu KategorieHex.
+Muzete takto zjistit hexadecimalni reprezentaci ID kategorii a nad kategorii, kterou pak pouzijete v jinych procedurach.
+*/
+DELIMITER //
+ create procedure ukazHexKategorii(
+)
+BEGIN
+
+START TRANSACTION;
+	select * from KategorieHex;
+END //
+DELIMITER ;
+
+DELIMITER //
+ create procedure pridatKategoriiNazev(
+	in _nazev varchar(255),
+	in _strucnyPopis varchar(500),
+	in _nadKategorieNazev VARCHAR(255)
+)
+BEGIN
+
+START TRANSACTION;
+	insert into Kategorie(nazev,strucnyPopis,nadKategorie)
+	select _nazev,_strucnyPopis,Kategorie.id
+	where Kategorie.nazev = _nadKategorieNazev;
+END //
+DELIMITER ;
+/*
+Procedura na pridani noveho zakaznika.
+Params:
+jmeno zakaznika,
+prijmeni zakaznika,
+email zakaznika,
+telefoni cislo zakaznika
+*/
+DELIMITER //
+ create procedure pridatZakaznika(
+	in _jmeno varchar(255),
+	in _prijmeni varchar(255),
+	in _email VARCHAR(255)
+	in _telefon varchar(20)
+)
+BEGIN
+
+START TRANSACTION;
+	insert into Zakaznik(jmeno,prijmeni,email,telefon)
+	values(_jmeno,_prijmeni,_email,_telefon);
+END //
+DELIMITER ;
+
+/*
+Procedura na pridani noveho zpusobu dorucovani.
+Params:
+nazev zpusobu doruceni,
+cena zpusobu doruceni,
+prumerny pocet dnu do doruceni
+*/
+DELIMITER //
+create procedure pridatZpusobDoruceni(
+	in _nazev varchar(255),
+	in _cena int,
+	in _dnyDoDoruceni int
+)
+BEGIN
+
+START TRANSACTION;
+	insert into ZpusobDoruceni(nazev,cena,dnyDoDoruceni) values(_nazev,_cena,_dnyDoDoruceni);
+END //
+DELIMITER ;
+
+/*
+Procedura na pridani noveho zpusobu platby.
+Params:
+nazev zpusobu platby,
+poplatek za zpusob platby
+*/
+DELIMITER //
+create procedure pridatZpusobPlatby(
+	in _nazev varchar(255),
+	in _poplatek int
+)
+BEGIN
+
+START TRANSACTION;
+	insert into ZpusobPlatby(nazev,poplatek) values(_nazev,_poplatek);
+END //
+DELIMITER ;
+
+/*
+Procedura na pridani nove polozky.
+Pouziva HEX reprezentaci ID kategorie do ktere patri.
+Params:
+nazev polozky,
+hex reprezentace ID kategorie do ktere polozka patri (naleznete zavolanim procedury ukazHexKategorii),
+strucny popis,
+detailni popis,
+sleva v procentech 0-100
+*/
+DELIMITER //
+create procedure pridatPolozkuHex(
+	in _nazev varchar(255),
+	in _kategorieHex varchar(32),
+	in _cena_ks int,
+	in _strucny_popis varchar(400),
+	in _detail_popis text,
+	in _slevaProcenta int
+
+)
+BEGIN
+
+START TRANSACTION;
+	insert into Polozka(kategorie_id,nazev,cena_ks,strucny_popis,detail_popis,slevaProcenta)
+	select Kategorie.id,_nazev,_cena_ks,_strucny_popis,_detail_popis,_slevaProcenta
+	from Kategorie
+	where Kategorie.id = (UNHEX(_kategorieHex));
+END //
+DELIMITER ;
+
+/*
+Procedura na pridani nove polozky.
+Pouziva nazev kategorie do ktere patri.
+Params:
+nazev polozky,
+nazev kategorie do ktere polozka patri,
+strucny popis,
+detailni popis,
+sleva v procentech 0-100
+*/
+DELIMITER //
+create procedure pridatPolozkuNazev(
+	in _nazev varchar(255),
+	in _kategorieNazev varchar(255),
+	in _cena_ks int,
+	in _strucny_popis varchar(400),
+	in _detail_popis text,
+	in _slevaProcenta int
+
+)
+BEGIN
+
+START TRANSACTION;
+	insert into Polozka(kategorie_id,nazev,cena_ks,strucny_popis,detail_popis,slevaProcenta)
+	select Kategorie.id,_nazev,_cena_ks,_strucny_popis,_detail_popis,_slevaProcenta
+	from Kategorie
+	where Kategorie.nazev = _kategorieNazev;
+END //
+DELIMITER ;
 
  /*Triggers*/
 delimiter //
@@ -114,8 +294,19 @@ FOR EACH ROW
 BEGIN
 if new.cena_ks < 0 THEN
 SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Cena polozky nemuze byt mensi nez 0.';
-end if; //
-END
+end if;
+END //
+delimiter ;
+
+delimiter //
+CREATE TRIGGER kontrola_slevy_polozky BEFORE INSERT
+ON Polozka
+FOR EACH ROW
+BEGIN
+if new.slevaProcenta < 0 OR new.slevaProcenta > 100 THEN
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Sleva musi byt v procentech od 0-100';
+end if;
+END //
 delimiter ;
 
 
@@ -125,7 +316,7 @@ ON PolozkaNaObjednavce
 FOR EACH ROW
 BEGIN
 update PolozkaNaObjednavce set cena = (new.pocet_ks * (select cena_ks from Polozka where Polozka.id = new.polozka_id))
-where PolozkaNaObjednavce.id = new.id
+where PolozkaNaObjednavce.id = new.id;
 end//
 delimiter ;
 
@@ -135,9 +326,10 @@ ON PolozkaNaObjednavce
 FOR EACH ROW
 BEGIN
 update Objednavka set celkovaCena = celkovaCena + new.cena
-where Objednavka.id = new.objednavka_id//
-end;
+where Objednavka.id = new.objednavka_id;
+end //
 delimiter ;
+
 
 delimiter //
 CREATE TRIGGER kontrola_aktualizace_ceny BEFORE UPDATE 
@@ -146,6 +338,6 @@ FOR EACH ROW
 BEGIN
 if new.celkovaCena < 0 THEN
 SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Cena objednavky nemuze byt mensi nez 0.';
-end if; //
-END
+end if;
+END//
 delimiter ;
