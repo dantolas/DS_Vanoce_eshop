@@ -136,7 +136,22 @@ START TRANSACTION;
 	select _nazev,_strucnyPopis,Kategorie.id
 	where Kategorie.nadKategorie = (UNHEX(_nadKategorieHex));
 END //
-DELIMITER ; 
+DELIMITER ;
+
+/*
+Procedura ktera vypise obsah pohledu KategorieHex.
+Muzete takto zjistit hexadecimalni reprezentaci ID kategorii a nad kategorii, kterou pak pouzijete v jinych procedurach.
+*/
+DELIMITER //
+ create procedure ukazInfoObjednavky(
+)
+BEGIN
+
+START TRANSACTION;
+	select * from ObjednavkaInfo;
+END //
+DELIMITER ;
+
 /*
 Procedura ktera vypise obsah pohledu KategorieHex.
 Muzete takto zjistit hexadecimalni reprezentaci ID kategorii a nad kategorii, kterou pak pouzijete v jinych procedurach.
