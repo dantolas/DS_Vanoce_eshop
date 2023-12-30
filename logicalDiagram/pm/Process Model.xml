@@ -1,7 +1,0 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
-<ProcessModel class="oracle.dbtools.crest.model.design.process.ProcessModel" name="Process Model" id="DF5749C4-052A-EB01-13D8-F9EE2E4B61A9">
-<createdBy>charming</createdBy>
-<createdTime>2023-12-17 10:44:45 UTC</createdTime>
-<ownerDesignName>logicalDiagram</ownerDesignName>
-<shouldBeOpen>false</shouldBeOpen>
-</ProcessModel>
