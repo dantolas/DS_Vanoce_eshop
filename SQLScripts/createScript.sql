@@ -12,8 +12,8 @@ create table IF NOT EXISTS Zakaznik(
 
 create table IF NOT EXISTS ZpusobPlatby(
 	id BINARY(16) primary key  default (UUID_TO_BIN(UUID())),
-	nazev varchar(255) not null,
-	poplatek int not null
+	nazev varchar(255) not null unique,
+	poplatek int not null default 0
 );
 
 
@@ -115,6 +115,25 @@ START TRANSACTION;
 	where Zakaznik.email = _emailZakaznika && ZpusobDoruceni.nazev = _nazevDoruceni && ZpusobPlatby.nazev = _nazevPlatby;
 END //
 DELIMITER;
+
+/*
+Procedura oznaci objednavku jako zaplacenou
+Params: zkopirovane ID objednavky, ktera ma byt oznacena za zaplacenou.
+*/
+DELIMITER //
+create procedure objednavkaZaplacena(
+    in _idObjednavky binary(16) 
+)
+BEGIN
+
+START TRANSACTION;
+    
+	update  Objednavka set Objednavka.zaplaceno = 1 
+    where id = _idObjednavky; 
+END //
+DELIMITER ;
+
+
 
 /*
 Procedura na pridani nove kategorie.
@@ -356,3 +375,47 @@ SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Cena objednavky nemuze byt mensi nez
 end if;
 END//
 delimiter ;
+
+DELIMITER //
+create trigger kontrola_delky_prijmeni before insert
+on Zakaznik
+FOR EACH ROW
+BEGIN
+if (length(new.prijmeni) < 3) THEN
+    SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Zakaznikovo prijmeni musi byt alespon 3 znaky dlouhe';
+end if;
+END //
+DELIMITER ;
+
+DELIMITER //
+create trigger kontrola_zavinace_email before insert
+on Zakaznik
+FOR EACH ROW
+BEGIN
+if (LOCATE('@',new.email) = 0) THEN
+    SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Zakaznikuv email musi obsahovat "@"';
+end if;
+END //
+DELIMITER ;
+
+DELIMITER //
+create trigger kontrola_poplatku_ZpusobPlatby before insert
+on ZpusobPlatby
+FOR EACH ROW
+BEGIN
+if (new.poplatek < 0) THEN
+    SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Poplatek nemuze byt mensi nez 0';
+end if;
+END //
+DELIMITER ;
+
+DELIMITER //
+create trigger kontrola_zpusobDoruceni before insert
+on ZpusobDoruceni
+FOR EACH ROW
+BEGIN
+if (new.cena < 0 OR new.dnyDoDoruceni < 0) THEN
+    SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Cena ani dnyDoDoruceni nemohou by mensi nez 0.';
+end if;
+END //
+DELIMITER ;
