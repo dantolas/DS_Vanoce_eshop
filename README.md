@@ -3,7 +3,7 @@
 ## **Střední průmyslová škola elektrotechnická, Praha 2, Ječná 30**
 ## **Školní rok 2022/2023**
 ---
-Jméno a příjimeni: **Samuel Kuta**
+Jméno a příjimeni: **Samuel Kuta** |
 Třída: **C4b**
 ---
 
@@ -80,63 +80,248 @@ not null
 - `datum` - generuje se automaticky, datetime, not null
 - `zaplaceno` - 0 nebo 1, not null, default 0
 ## Referenční integrita
-př:
-** Návrh obsahuje několik cizích klíčů, které jsou uvedeny níže
-- 'fk_ucet_zamestnanec1' ON DELETE NO ACTION ON UPDATE NO ACTION
-...
+Návrh obsahuje několik cizích klíčů, které jsou uvedeny níže
+- **PolozkaNaObjednavce**
+  - `fk_polozka_id`
+    - Odkaz na Polozka.id
+    - ON DELETE : NOT ALLOWED
+    - ON UPDATE :  NOT ALLOWED
+- **Kategorie**
+  - `fk_nadKategorie`
+    - Odkaz na Kategorie.id
+    - ON DELETE : NO ACTION
+    - ON UPDATE : NO ACTION
+- **Objednavka**
+  - `fk_zakaznik_id`
+    - Odkaz na Zakaznik.id
+    - ON DELETE : NOT ALLOWED
+    - ON UPDATE : NOT ALLOWED
+  - `fk_zpusobPlatby_id`
+    - Odkaz na ZpusobPlatby.id
+    - ON DELETE : NOT ALLOWED
+    - ON UPDATE : NOT ALLOWED
+  - `fk_zpusobDoruceni_id`
+    - Odkaz na ZpusobDoruceni.id
+    - ON DELETE : NOT ALLOWED
+    - ON UPDATE : NOT ALLOWED
+
 
 ## Indexy 
 - Databáze má pro každou entitu pouze indexy vytvořené pro primární klíče, 
-další indexy ...
 
 ## Pohledy
-- Návrh obsahuje pohledy ...
+**KategorieHex**
+- Obsahuje jmena kategorii, a hex reprezentaci jejich ID, a nadKategore ID
+
+**ObjednavkaInfo**
+- Pristupne obsahuje dulezite informace o objednavce.
 
 ## Triggery
-- Databáze obsahuje triggery ...
+**kontrola_ceny_polozky**
+- ON `Polozka`
+- Kontroluje aby cena polozky nemohla byt negativni
+- BEFORE INSERT
+
+**kontrola_slevy_polozky**
+- ON `Polozka`
+- Kontroluje aby sleva musela byt nastavena v intervalu 0-100
+- BEFORE INSERT
+
+**pridani_ceny_polozkyNaObjednavce**
+- ON `PolozkaNaObjednavce`
+- Prida cenu polozce, podle poctu kusu, a ceny za kus v Polozka.
+- BEFORE INSERT
+
+**aktualizace_ceny_objednavky**
+- ON `PolozkaNaObjednavce`
+- Aktualizuje cenu objednavky po pridani polozky.
+- AFTER INSERT
+
+**kontrola_aktualizace_ceny**
+- ON `Objednavka`
+- Kontroluje jestli nova cena neni negativni.
+- BEFORE EUPDATE
+
+**kontrola_delky_prijmeni**
+- ON `Zakaznik`
+- Kontroluje minimalni delku prijmeni -3 znaky
+- BEFORE INSERT
+
+**kontrola_zavinace_email**
+- ON `Zakaznik`
+- Kontroluje jestli je v zadanem emailu znak @
+- BEFORE INSERT
+
+**kontrola_poplatku_ZpusobPlatby**
+- ON `ZpusobPlatby`
+- Kontroluje aby poplatek nebyl zaporny.
+- BEFORE INSERT
+
+**kontrola_zpusobDoruceni**
+- ON `ZpusobDoruceni`
+- Kontroluje nezaporne vstupy.
+- BEFORE INSERT
+
+**zakaz_update_polozkaNaObjednavce**
+- ON `PolozkaNaObjednavce`
+- Zakazuje upraveni polozka_id.
+- BEFORE UPDATE
+
+**zakaz_delete_PolozkaNaObjednavce**
+- ON `PolozkaNaObjednavce`
+- Zakazuje delete na tabulku.
+- BEFORE DELETE
+
+**zakaz_delete_Objednavka**
+- ON `Objednavka`
+- Zakazuje delete na tabulku.
+- BEFORE DELETE
+
+**zakaz_update_fk_Objednavka**
+- ON `Objednavka`
+- Zakazuje update na cizich klicich v objednavce.
+- BEFORE UPDATE
+
+**update_ceny_pridaniKusu**
+- ON `PolozkaNaObjednavce`
+- Aktualizuje cenu polozky i objednavky po update na pocet_ks
+- AFTER UPDATE
+
+
 
 ## Uložené procedury a funkce
-- Databáze obsahuje procedury  ... a funkce ...
+**novaObjednavka**
+- `PROCEDURE`
+- Pridani nove objednavky do databaze
+- **Params**:
+  - email zakaznika kteremu objednavka patri,
+  - nazev zpusobu doruceni podle tabulky ZpusobDoruceni,
+  - nazev zpusobu platby podle tabulky ZpusobPlatby,
+  - adresovy radek 1 pro doruceni,
+  - mesto pro doruceni,
+  - postovni smerovaci cislo, bez mezer jako cislo 12800
 
+**objednavkaaplacena**
+- `PROCEDURE`
+- Oznaceni objednavky jako zaplacene.
+- **Params**:
+  - id objednavky
+
+**pridatKategoriiHex**
+- `PROCEDURE`
+- Pridani nove kategorie.
+- **Params**:
+  - nazev nove kategorie,
+  - strucny popis nove kategorie,
+  - HEX reprezentaci ID nadKategorie, naleznete bud zavolanim procedury ukazHexKategorii(), a nebo v pohledu KategorieHex;
+
+**pridatKategoriiNazev**
+- `PROCEDURE`
+- Pridani nove kategorie
+- **Params**:
+  - nazev nove kategorie
+  - strucny popis nove kategorie
+  - nazev nadKategorie
+
+**pridatZakaznika**
+- `PROCEDURE`
+- Pridani noveho zakaznika.
+- **Params**:
+  - jmeno zakaznika
+  - prijmeni zakaznika
+  - email zakaznika
+  - telefoni cislo zakaznika
+
+**pridatZpusobDoruceni**
+- `PROCEDUER`
+- Pridani noveho zpusobu doruceni.
+- **Params**:
+  - nazev zpusobu doruceni
+  - cena zpusobu doruceni
+  - prumerny pocet dni do doruceni
+
+**pridatZpusobPlatby**
+- `PROCEDURE`
+- Pridani noveho zpusobu platby.
+- **Params**:
+  - nazev zpusobu platby
+  - poplatek za zpusob platby
+
+**aktualizovatCenuObjednavky**
+- `PROCEDURE`
+- Aktualizuje celkovouCenu objednavky
+sectenim ceny vsech polozek na objednavce
+a zpusobu platby a doruceni;
+- **Params**:
+  - id objednavky
+
+**pridatPolozkuHex**
+- `PROCEDURE`
+- Pridani nove polozky.
+- **Params**:
+nazev polozky,
+  - hex reprezentace ID kategorie do ktere polozka patri (naleznete zavolanim procedury ukazHexKategorii)
+  - strucny popis
+  - detailni popis
+  - sleva v procentech 0-100
+
+**pridatPolozkuNazev**
+- `PROCEDURE`
+- Pridani nove polozky.
+- **Params**:
+nazev polozky,
+  - nazev kategorie do ktere polozka patri
+  - strucny popis
+  - detailni popis
+  - sleva v procentech 0-100
 ## Přístupové údaje do databáze
 př:
 - Přístupové údaje jsou volně konfigurovatelné v souboru /config/... .doc
 pro vývoj byly použity tyto:
-host		: localhost
-uživatel	: sa
-heslo		: student
-databáze	: ...
+- `host`		: localhost
+- `uživatel`	: sa
+- `heslo`		: student
+- `databáze`	: eshop
 
 ## Import struktury databáze a dat od zadavatele
-př:
-Nejprve je nutno si vytvořit novou databázi, čistou, bez jakýchkoliv dat...
-Poté do této databáze nahrát soubor, který se nachází v /sql/structure.sql ...
+### |1|
+Nejprve je nutno si vytvořit novou databázi, čistou, bez jakýchkoliv dat.
+### |2|
+Poté do této databáze nahrát soubor, který se nachází v /sql/structure.sql.
+### |3|
 Pokud si přejete načíst do databáze testovací data, je nutno nahrát ještě soubor /sql/data.sql ...
 
 ## Klientská aplikace
-- Databáze obsahuje/neobsahuje klientskou aplikaci ...
+- Databáze **NEOBSAHUJE** klientskou aplikaci. 
 
 ## Požadavky na spuštění
-př:
-- Oracle DataModeler, rok vydání 2014 a více ... 
-- MSSQL Server, rok vydání 2014 a více ... 
-- připojení k internetu alespoň 2Mb/s ...
-...
+- `MySQL Server` - verze 8.0 a novejsi 
+- připojení k internetu o minimální rychlosti 2Mb/s
 
 ## Návod na instalaci a ovládání aplikace
-př:
-Uživatel by si měl vytvořit databázi a nahrát do ní strukturu, dle kroku "Import struktury databáze 
-a dat od zadavatele" ...
+Uživatel by si měl vytvořit databázi a nahrát do ní strukturu, dle kroku: [Import struktury databáze 
+a dat od zadavatele](#Import-struktury-databáze-a-dat-od-zadavatele). 
+
 Poté se přihlásit předdefinovaným uživatelem, nebo si vytvořit vlastního pomocí SQL příkazů ...
-Měl by upravit konfigurační soubor klientské aplikace, aby odpovídal jeho podmínkám ...
+
+
 Dále nahrát obsah složky src na server a navštívit adresu serveru ... 
+
 Přihlásit se a může začít pracovat ... 
 
 ## Závěr
-př:
-Tento systém by po menších úpravách mohl být převeden na jiný databázový systém, 
-klientská aplikace není zabezpečená, 
-počítá se s tím, že klient byl proškolen o používání této aplikace ...
-Nepodařilo se dořešit ...
-Pro další vývoj aplikace by bylo vhodné ...
+`|Flexibilita|`
 
+Tato struktura databáze by mohla fungovat i pro eshop jiných potřeb po menších úpravách.
+
+`|Přístupnost|`
+
+Počítá se s tím, že klient byl proškolen o používání této aplikace.
+
+`|Nedostatky|`
+
+Nepodařilo se dořešit.
+
+`|Budoucí vývoj|`
+
+Pro další vývoj by bylo vhodné vyvinout klientskou aplikaci, udělat důkladněji práva a přístupy pro uživatele. 

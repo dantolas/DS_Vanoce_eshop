@@ -76,7 +76,7 @@ create table IF NOT EXISTS PolozkaNaObjednavce(
 /*Views*/
  create view KategorieHex as select HEX(id) as hexID,nazev,HEX(nadKategorie) as nadHexId from Kategorie;
 
- create view ObjednavkaInfo as select Objednavka.id,CONCAT(Zakaznik.jmeno,' ',Zakaznik.prijmeni) as jmenoZakaznika,ZpusobPlatby.nazev as Platba,ZpusobDoruceni.nazev as Doruceni,CONCAT(Objednavka.adresa,' ',Objednavka.mesto,' ',Objednavka.psc) as UplnaAdresa,Objednavka.datum,Objednavka.zaplaceno
+ create view ObjednavkaInfo as select Objednavka.id,CONCAT(Zakaznik.jmeno,' ',Zakaznik.prijmeni) as 'jmeno Zakaznika',ZpusobPlatby.nazev as Platba,ZpusobDoruceni.nazev as Doruceni,CONCAT(Objednavka.adresa,' ',Objednavka.mesto,' ',Objednavka.psc) as 'Uplna Adresa',Objednavka.datum as 'Datum Vytvoreni',Objednavka.celkovaCena as 'Cena',Objednavka.zaplaceno
  from Objednavka inner join Zakaznik
  on Objednavka.zakaznik_id = Zakaznik.id
  inner join ZpusobPlatby
@@ -261,6 +261,24 @@ END //
 DELIMITER ;
 
 /*
+Aktualizuje celkovouCenu objednavky
+sectenim ceny vsech polozek na objednavce
+a zpusobu platby a doruceni;
+*/
+DELIMITER //
+create procedure aktualizovatCenuObjednavky(
+    in _idObjednavky BINARY(16)
+)
+BEGIN
+
+START TRANSACTION;
+    update Objednavka
+    set celkovaCena = (select SUM(cena) from Polozka where objednavka_id = _idObjednavky)
+    where id = _idObjednavky;
+END //
+DELIMITER ; 
+
+/*
 Procedura na pridani nove polozky.
 Pouziva HEX reprezentaci ID kategorie do ktere patri.
 Params:
@@ -345,12 +363,11 @@ delimiter ;
 
 
 delimiter //
-CREATE TRIGGER pridani_ceny_polozkyNaObjednavce AFTER INSERT
+CREATE TRIGGER pridani_ceny_polozkyNaObjednavce BEFORE INSERT
 ON PolozkaNaObjednavce
 FOR EACH ROW
 BEGIN
-update PolozkaNaObjednavce set cena = (new.pocet_ks * (select cena_ks from Polozka where Polozka.id = new.polozka_id))
-where PolozkaNaObjednavce.id = new.id;
+set new.cena = (new.pocet_ks * (select cena_ks from Polozka where Polozka.id = new.polozka_id));
 end//
 delimiter ;
 
@@ -419,3 +436,58 @@ if (new.cena < 0 OR new.dnyDoDoruceni < 0) THEN
 end if;
 END //
 DELIMITER ;
+
+delimiter //
+CREATE TRIGGER zakaz_update_PolozkaNaObjednavce BEFORE UPDATE
+ON PolozkaNaObjednavce
+FOR EACH ROW
+BEGIN
+if new.polozka_id != old.polozka_id THEN
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Neni povoleno updatovat polozka_id.';
+end if;
+END //
+delimiter ;
+
+delimiter //
+CREATE TRIGGER zakaz_delete_PolozkaNaObjednavce BEFORE DELETE
+ON PolozkaNaObjednavce
+FOR EACH ROW
+BEGIN
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Neni povoleno delete.';
+END //
+delimiter ;
+
+delimiter //
+CREATE TRIGGER zakaz_delete_Objednavka BEFORE DELETE
+ON Objednavka
+FOR EACH ROW
+BEGIN
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Neni povoleno delete.';
+END //
+delimiter ;
+
+delimiter //
+CREATE TRIGGER zakaz_update_fk_Objednavka BEFORE UPDATE
+ON Objednavka
+FOR EACH ROW
+BEGIN
+if new.zakaznik_id != old.zakaznik_id OR new.zpusobPLatby_id != old.zpusobPLatby_id OR new.zpusobDoruceni_id != old.zpusobDoruceni_id then
+SIGNAL SQLSTATE '50001' SET MESSAGE_TEXT = 'Neni povoleno updatovat cizi klice.';
+end if;
+END //
+delimiter ;
+
+delimiter //
+CREATE TRIGGER update_ceny_pridaniKusu AFTER UPDATE
+ON PolozkaNaObjednavce
+FOR EACH ROW
+BEGIN
+if new.pocet_ks != old.pocet_ks then
+update PolozkaNaObjednavce inner join Polozka
+on PolozkaNaObjednavce.polozka_id = Polozka.id
+set cena = (pocet_ks * Polozka.cena_ks)
+where PolozkaNaObjednavce.id = new.id;
+call aktualizovatCenuObjednavky();
+end if;
+END //
+delimiter ;
