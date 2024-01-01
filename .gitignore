@@ -3,3 +3,7 @@ temporaryQueryHolder.txt
 Analyza.odt
 logicalDiagram/
 logicalDiagram.dmd
+**/*.localz
+**/*.local
+**/*.git
+**/*.DS_Store

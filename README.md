@@ -2,10 +2,10 @@
 
 ## **Střední průmyslová škola elektrotechnická, Praha 2, Ječná 30**
 ## **Školní rok 2022/2023**
----
-Jméno a příjimeni: **Samuel Kuta** |
-Třída: **C4b**
----
+
+## Jméno a příjimeni: **Samuel Kuta**
+
+## Třída: **C4b**
 
 ## Úvod
 
@@ -114,7 +114,10 @@ Návrh obsahuje několik cizích klíčů, které jsou uvedeny níže
 - Obsahuje jmena kategorii, a hex reprezentaci jejich ID, a nadKategore ID
 
 **ObjednavkaInfo**
-- Pristupne obsahuje dulezite informace o objednavce.
+- Pristupne obsahuje dulezite informace o objednavkach.
+
+**PolozkaInfo**
+- Pristupne obsahuje dulezite informace o polozkach.
 
 ## Triggery
 **kontrola_ceny_polozky**
@@ -302,12 +305,9 @@ Pokud si přejete načíst do databáze testovací data, je nutno nahrát ješt�
 Uživatel by si měl vytvořit databázi a nahrát do ní strukturu, dle kroku: [Import struktury databáze 
 a dat od zadavatele](#Import-struktury-databáze-a-dat-od-zadavatele). 
 
-Poté se přihlásit předdefinovaným uživatelem, nebo si vytvořit vlastního pomocí SQL příkazů ...
+Poté se přihlásit předdefinovaným uživatelem, nebo si vytvořit vlastního pomocí SQL příkazů.
 
-
-Dále nahrát obsah složky src na server a navštívit adresu serveru ... 
-
-Přihlásit se a může začít pracovat ... 
+Po přihlášení může uživatel začít pracovat s databází.
 
 ## Závěr
 `|Flexibilita|`
