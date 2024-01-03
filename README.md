@@ -204,6 +204,13 @@ Návrh obsahuje několik cizích klíčů, které jsou uvedeny níže
   - mesto pro doruceni,
   - postovni smerovaci cislo, bez mezer jako cislo 12800
 
+**novaPolozkaNaObjednavce**
+- `PROCEDURE`
+- Pridani nove polozky k objednavce do databaze
+- **Params**:
+  - id_objednavky
+  - id_polozky
+  - pocet_kusu
 **objednavkaaplacena**
 - `PROCEDURE`
 - Oznaceni objednavky jako zaplacene.
@@ -296,6 +303,105 @@ Pokud si přejete načíst do databáze testovací data, je nutno nahrát ješt�
 
 ## Klientská aplikace
 - Databáze **NEOBSAHUJE** klientskou aplikaci. 
+
+## Zálohování databáze
+- MySQL nepodporuje bez použití 3rd party softwaru differenciální ani incrementální zálohování.
+- Je proto nejjednodušší udělat plnou zálohu databáze. 
+- Zálohu celé databáze nebo jednotlivých stolů lze udělat následujícími příkazy, 
+pokud už má uživatel přístup k databázi, nebo v programu MySQL Workbench:
+
+**Příkazy se používají v příkazovém řádku PC kde je server instalován, ne v klientském připojení k mysql serveru.**
+  - **Full backup databaze**
+  
+  `
+  mysqldump -u [username] -p [nazevDatabaze]  > ./full_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+  
+  - **Backup pro jednotlive stoly**
+  
+  ` 
+  mysqldump -u [username] -p [nazevDatabaze] Zakaznik > ./full_Zakaznik_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+ 
+  `
+  mysqldump -u [username] -p [nazevDatabaze] Objednavka > ./full_Objednavka_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+
+  `
+  mysqldump -u [username] -p [nazevDatabaze] Polozka > ./full_Polozka_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+  `
+  mysqldump -u [username] -p [nazevDatabaze] PolozkaNaObjednavce > ./full_PolNaObj_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+
+  `
+  mysqldump -u [username] -p [nazevDatabaze] Kategorie > ./full_Kategorie_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+
+  `
+  mysqldump -u [username] -p [nazevDatabaze] ZpusobPlatby > ./full_ZpusobPlatby_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `
+
+  `
+  mysqldump -u [username] -p [nazevDatabaze] ZpusobDoruceni > ./full_ZpusobDoruceni_$(date "+%b_%d_%Y_%H_%M_%S").sql
+  `  
+
+## Archivace dat
+### Data databáze lze archivovat do souboru .csv pomocí následujících **SQL** dotazů:
+
+### !!
+**MySQL musí mít přístup k těmto složkám, což se dá nastavit buď v /etc/mysql/my.cnf, nebo nastavení práv složky do které chcete zapisovat**
+
+**Zakaznik**
+
+`select * from Zakaznik
+into outfile ['cesta']
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n';`
+
+**Zpusob Doruceni**
+
+`select * from ZpusobDoruceni
+into outfile ['cesta']
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n';`
+
+**Zpusob Platby**
+
+`select * from ZpusobPlatby 
+into outfile ['cesta']
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n';`
+
+**Kategorie**
+
+`select * from Kategorie
+into outfile ['cesta']
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n';`
+
+**Polozka**
+
+`select * from Polozka
+into outfile ['cesta']
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n';`
+
+**Objednavka**
+
+`select * from Objednavka
+into outfile ['cesta']
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n';`
+
+
+
 
 ## Požadavky na spuštění
 - `MySQL Server` - verze 8.0 a novejsi 

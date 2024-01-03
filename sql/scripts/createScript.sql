@@ -114,7 +114,21 @@ START TRANSACTION;
 	from Zakaznik,ZpusobPlatby,ZpusobDoruceni
 	where Zakaznik.email = _emailZakaznika && ZpusobDoruceni.nazev = _nazevDoruceni && ZpusobPlatby.nazev = _nazevPlatby;
 END //
-DELIMITER;
+DELIMITER ;
+
+DELIMITER //
+ create procedure novaPolozkaNaObjednavce(
+	in _objednavka_id binary(16),
+    in _polozka_id binary(16),
+    in _pocet_ks int
+)
+BEGIN
+
+START TRANSACTION;
+	insert into PolozkaNaObjednavce(objednavka_id,polozka_id,pocet_ks) 
+    values (_objednavka_id,_polozka_id,_pocet_ks);
+END //
+DELIMITER ;
 
 /*
 Procedura oznaci objednavku jako zaplacenou
